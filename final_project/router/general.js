@@ -24,32 +24,57 @@ public_users.post("/register", (req,res) => {
 
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: " Inside get, Yet to be implemented"});
+  return res.status(200).json({books});
 });
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const isbn = req.params.isbn;
+  if (books[isbn]) {
+	return res.status(200).json({book: books[isbn]});
+  }	  
+  return res.status(404).json({message: "isbn not found"});
  });
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const author = req.params.author;
+  let foundBook = null;
+  for (key in books) {
+    if (books[key]['author'] === author) {
+        foundBook = books[key];
+		break;
+    }
+  }
+  if (foundBook) {
+	  return res.status(200).json({book: foundBook});
+  }
+  return res.status(404).json({message: "Author not found"});
 });
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const title = req.params.title;
+  let foundBook = null;
+  for (key in books) {
+    if (books[key]['title'] === title) {
+        foundBook = books[key];
+		break;
+    }
+  }
+  if (foundBook) {
+	  return res.status(200).json({book: foundBook});
+  }
+  return res.status(404).json({message: "title not found"});
 });
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const isbn = req.params.isbn;
+  if (books[isbn]) {
+	return res.status(200).json({reviews: books[isbn]['reviews']});
+  }	  
+  return res.status(404).json({message: "Isbn not found"});
 });
 
 module.exports.general = public_users;

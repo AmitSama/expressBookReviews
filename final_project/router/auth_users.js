@@ -11,8 +11,9 @@ const isValid = (username)=>{
 }
 
 const authenticatedUser = (username,password)=> {
-	let validUsers = users.filter((u) => {u.username === username && 
-		u.password === password });
+	users.map((user,index) => (console.log(user)));
+	let validUsers = users.filter((u) => (u.username === username && 
+		u.password === password ));
 	return validUsers.length > 0 ? true : false;
 }
 
@@ -24,20 +25,17 @@ regd_users.post("/login", (req,res) => {
   if (!username || !password) {
 	  return res.status(404).json({message: "Error logging in"});
   }
-  if (authenticatedUser(username, password)) {
-	  let token = jwt.sign({data: password}, 'access', {expiresIn: 60*60});
-	  req.session.authorization = {
-									token, 
-									username
-								};
-	  return res.status(200).send("User successfully logged in");
+  if (authenticatedUser(username, password) === true) {
+	  let token = jwt.sign({data: password}, "access", {expiresIn: "1h"});
+	  return res.status(200).json({token: token, "message": "User successfully logged in"});
   } else {
 	  return res.status(208).json({message: "Invalid username or password"});	  
   }
 });
 
 // Add a book review
-regd_users.put("/auth/review/:isbn", (req, res) => {
+regd_users.put("/review/:isbn", (req, res) => {
+  console.log("Inside review api");
   const id = req.params.isbn;
   if (books[id]) {
 	  const counter = Objects(books[id].reviews).length;

@@ -8,6 +8,7 @@ const app = express();
 
 app.use(express.json());
 
+
 app.use("/customer",
 	session({
 		secret: "fingerprint_customer",
@@ -15,12 +16,16 @@ app.use("/customer",
 		saveUninitialized: true		
 	}));
 
-app.use("/customer/auth/*", function auth(req,res,next){
-	if (req.session.authorization) {
-		let token = req.session.authorization['accessToken'];
+app.use("/customer/review/", function auth(req, res, next){
+	console.log(req.header('Authorization'));
+	let token = req.header('Authorization').split(' ')[1];
+	if (token) {
+		console.log("Inside middleware .... token is " + token);
+		const decode = jwt.verify(token, "access");
+		console.log("Docoded token is ", decode);
 		jwt.verify(token, "access", (err, user) => {
 			if (!err) {
-				req.user = user;
+				console.log("authorization passed, moving to next middleware", user);
 				next();
 			} else {
 				return res.status(403).json({message: "User not authorized"});
@@ -30,7 +35,7 @@ app.use("/customer/auth/*", function auth(req,res,next){
 		return res.status(403).json({message: "User not logged in"});
 	}	
 });
- 
+
 const PORT =4173;
 
 app.use("/customer", customer_routes);
