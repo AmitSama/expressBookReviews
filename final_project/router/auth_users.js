@@ -66,6 +66,20 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   return res.status(404).json({message: "Book not found"});
 });
 
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  //auth(req, res, next);
+  console.log("Inside review api");
+  const isbn = req.params.isbn;
+  const username = req.params.user;
+  if (books[isbn]) {
+	  if (books[isbn].reviews[username]) {
+		delete(books[isbn].reviews[username]);	  
+		return res.status(200).json({message: `Reviews by user ${username} are deleted`});
+	  }
+  }
+  return res.status(404).json({message: "Book or user not found for deleting reviews"});
+});
+
 module.exports.authenticated = regd_users;
 module.exports.authenticatedUser = authenticatedUser;
 module.exports.isValid = isValid;
