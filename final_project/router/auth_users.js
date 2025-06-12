@@ -17,6 +17,24 @@ const authenticatedUser = (username,password)=> {
 	return validUsers.length > 0 ? true : false;
 }
 
+/*
+const auth = (req, res, next) => {
+	//console.log(req.header('Authorization'));
+	let token = req.header('Authorization').split(' ')[1];
+	if (token) {
+		console.log("Inside middleware .... token is " + token);
+		const decode = jwt.verify(token, "access");
+		if (decode) {
+			next()
+		} else {
+			return res.status(403).json({message: "User not authorized"});
+		}
+	} else {
+		return res.status(403).json({message: "User not logged in"});
+	}	
+}
+*/
+
 //only registered users can login
 regd_users.post("/login", (req,res) => {
   const username = req.body.username;
@@ -26,7 +44,7 @@ regd_users.post("/login", (req,res) => {
 	  return res.status(404).json({message: "Error logging in"});
   }
   if (authenticatedUser(username, password) === true) {
-	  let token = jwt.sign({data: password}, "access", {expiresIn: "1h"});
+	  let token = jwt.sign({data: username+"="+password}, "access", {expiresIn: "1h"});
 	  return res.status(200).json({token: token, "message": "User successfully logged in"});
   } else {
 	  return res.status(208).json({message: "Invalid username or password"});	  
@@ -34,15 +52,18 @@ regd_users.post("/login", (req,res) => {
 });
 
 // Add a book review
-regd_users.put("/review/:isbn", (req, res) => {
+
+regd_users.put("/auth/review/:isbn", (req, res) => {
+  //auth(req, res, next);
   console.log("Inside review api");
-  const id = req.params.isbn;
-  if (books[id]) {
-	  const counter = Objects(books[id].reviews).length;
-	  books[id].reviews = {count: counter, review : req.body.review};
-	  return res.status(200).json({message: `Book with isbn ${id} is updated.`});
+  const isbn = req.params.isbn;
+  const username = req.params.user;
+  const review = req.body.review;
+  if (books[isbn]) {
+	  books[isbn].reviews[username] = review;
+	  return res.status(200).json({message: `Book with isbn ${isbn} is updated.`});
   }
-  return res.status(300).json({message: "Book not found"});
+  return res.status(404).json({message: "Book not found"});
 });
 
 module.exports.authenticated = regd_users;
